@@ -1,53 +1,36 @@
-﻿const { Resend } = require('resend');
+﻿import { Resend } from 'resend';
 
-const escapeHtml = (str) => String(str || '')
-  .replace(/&/g, '&amp;')
-  .replace(/</g, '&lt;')
-  .replace(/>/g, '&gt;')
-  .replace(/"/g, '&quot;')
-  .replace(/'/g, '&#039;');
+function esc(s=''){return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]))}
 
-const buildEmailHtml = (d) => `
-  <div style="font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;color:#0b1220">
-    <h2 style="margin:0 0 10px">Nuevo diagnóstico de IA</h2>
-    <p style="margin:0 0 16px;color:#334155">De: <strong>${escapeHtml(d.nombre)}</strong> &lt;${escapeHtml(d.email)}&gt;</p>
-    <hr style="border:none;border-top:1px solid #e2e8f0;margin:16px 0"/>
-    ${Object.entries(d).filter(([k]) => !['nombre','email'].includes(k)).map(([k,v]) => `
-      <p style="margin:6px 0"><strong>${escapeHtml(k)}:</strong> ${escapeHtml(v)}</p>
-    `).join('')}
-  </div>`;
+function emailHtml(d){
+  const row = (k,v)=><tr><td style="padding:6px 10px;border-bottom:1px solid #eee;color:#555"></td><td style="padding:6px 10px;border-bottom:1px solid #eee"></td></tr>;
+  return <!doctype html><meta charset="utf-8"/><div style="font-family:system-ui,Segoe UI,Arial,sans-serif;color:#111">
+  <h2 style="margin:0 0 8px">Nuevo diagnóstico IA</h2>
+  <p style="margin:0 0 12px;color:#555">Formulario de la web</p>
+  <table style="border-collapse:collapse;width:100%"></table>
+</div>;
+}
 
-module.exports = async (req, res) => {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const to = process.env.CONTACT_TO_EMAIL || 'you@example.com';
+  const from = process.env.CONTACT_FROM_EMAIL || 'onboarding@resend.dev';
+
+  const body = req.body || {};
+  if (!body.nombre || !body.email) return res.status(400).json({ error: 'Faltan campos obligatorios' });
+
   try {
-    const chunks = [];
-    for await (const chunk of req) chunks.push(chunk);
-    const str = Buffer.concat(chunks).toString('utf8');
-    const data = str ? JSON.parse(str) : {};
-
-    const nombre = (data.nombre||'').trim();
-    const email = (data.email||'').trim();
-    if (!nombre || !email) return res.status(400).json({ error: 'Faltan nombre o email' });
-
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    const to = process.env.CONTACT_TO_EMAIL;
-    const from = process.env.CONTACT_FROM_EMAIL || 'onboarding@resend.dev';
-
-    const { error } = await resend.emails.send({
+    await resend.emails.send({
       from,
       to,
-      reply_to: email,
-      subject: `Diagnóstico IA - ${nombre}`,
-      html: buildEmailHtml(data),
+      subject: Diagnóstico IA - ,
+      html: emailHtml(body),
+      reply_to: body.email,
     });
-
-    if (error) return res.status(500).json({ error: error.message || 'Error enviando email' });
-
     return res.status(200).json({ ok: true });
-  } catch (err) {
-    return res.status(400).json({ error: err.message || 'Solicitud inválida' });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'No se pudo enviar' });
   }
-};
+}

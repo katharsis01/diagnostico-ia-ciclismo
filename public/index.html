@@ -4,265 +4,122 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Diagnóstico IA para Tiendas de Ciclismo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    :root { --bg:#0b0f14; --panel:#111826; --muted:#93a4b8; --text:#e6eef7; --brand:#22c55e; --brand-2:#2dd4bf; --ring:rgba(45,212,191,.35); }
+    :root { --bg:#0b0f16; --panel:#0f1520; --muted:#8b9bb5; --text:#e6edf3; --brand:#5eead4; --brand2:#22d3ee; }
     *{box-sizing:border-box}
-    html,body{margin:0;height:100%;background:radial-gradient(1200px 800px at 10% -10%,rgba(45,212,191,.08),transparent 60%),radial-gradient(1200px 800px at 100% 0,rgba(34,197,94,.08),transparent 60%),var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial}
-    a{color:inherit}
-    .wrap{min-height:100%;display:grid;place-items:center;padding:40px 16px}
-    .card{width:100%;max-width:980px;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));border:1px solid rgba(148,163,184,.12);border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.35);backdrop-filter:blur(8px);overflow:hidden}
-    .header{padding:28px 28px 0}
-    .title{display:flex;align-items:center;gap:12px}
-    .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid rgba(148,163,184,.2);border-radius:999px;font-size:12px;color:var(--muted)}
-    .logo{width:9px;height:9px;border-radius:50%;background:linear-gradient(45deg,var(--brand),var(--brand-2))}
-    h1{margin:10px 0 6px;font-size:22px;font-weight:600}
-    p.sub{margin:0 0 18px;color:var(--muted);font-size:14px}
-    .grid{display:grid;gap:22px;padding:22px;border-top:1px solid rgba(148,163,184,.12);background:linear-gradient(180deg,rgba(17,24,38,.8),rgba(17,24,38,.7))}
-    @media (min-width:900px){.grid{grid-template-columns:1.05fr .95fr;padding:24px}}
-    .form{padding:0 6px 6px}
-    .section{border:1px solid rgba(148,163,184,.12);border-radius:14px;overflow:hidden}
-    .section h3{margin:0;padding:14px 14px 10px;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent);border-bottom:1px dashed rgba(148,163,184,.18);font-size:15px;font-weight:600;color:#d7e2ee}
-    .fields{display:grid;gap:12px;padding:14px}
-    .row{display:grid;gap:12px}
-    @media (min-width:600px){.row{grid-template-columns:1fr 1fr}}
-    label{font-size:12px;color:var(--muted)}
-    input,select,textarea{width:100%;padding:12px 12px;border-radius:10px;border:1px solid rgba(148,163,184,.18);background:#0c141f;color:var(--text);outline:none;transition:.2s box-shadow,.2s border-color}
+    body{margin:0;background:radial-gradient(1200px 600px at 70% -20%, #112 0%, transparent 60%),linear-gradient(160deg,#0a0e14,#0b0f16 60%,#0a0e14);color:var(--text);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;}
+    .wrap{max-width:960px;margin:48px auto;padding:0 20px}
+    .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center}
+    h1{font-size:42px;line-height:1.1;margin:0 0 10px;font-weight:800;letter-spacing:-0.02em}
+    p.lead{font-size:18px;color:var(--muted);margin:0 0 22px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid rgba(148,163,184,.15);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.05)}
+    .card .hd{padding:16px 18px;border-bottom:1px solid rgba(148,163,184,.12);font-weight:700;letter-spacing:.02em;color:#cbd5e1;background:linear-gradient(180deg,rgba(148,163,184,.08),rgba(148,163,184,.03))}
+    .card .bd{padding:18px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    label{display:block;font-size:13px;margin:10px 0 6px;color:#cbd5e1}
+    input,select,textarea{width:100%;background:#0b1220;border:1px solid rgba(148,163,184,.22);color:var(--text);padding:10px 12px;border-radius:10px;outline:none;transition:.15s}
+    input:focus,select:focus,textarea:focus{border-color:#38bdf8;box-shadow:0 0 0 3px rgba(56,189,248,.25)}
     textarea{min-height:110px;resize:vertical}
-    input:focus,select:focus,textarea:focus{border-color:var(--brand-2);box-shadow:0 0 0 5px var(--ring)}
-    .cta{display:flex;gap:12px;align-items:center}
-    button{appearance:none;border:0;border-radius:12px;padding:12px 16px;font-weight:600;cursor:pointer;transition:transform .06s ease,box-shadow .2s}
-    .btn{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#06121a;box-shadow:0 10px 20px rgba(45,212,191,.2)}
-    .btn:hover{transform:translateY(-1px)}
-    .muted{color:var(--muted);font-size:12px}
-    .status{margin-left:auto;font-size:12px}
-    .ok{color:#22c55e}.err{color:#ef4444}
+    .actions{display:flex;gap:12px;align-items:center;margin-top:12px}
+    button{background:linear-gradient(90deg,var(--brand),var(--brand2));color:#0b0f16;border:0;padding:12px 16px;border-radius:12px;font-weight:800;letter-spacing:.02em;cursor:pointer}
+    button:hover{filter:brightness(1.1)}
+    .note{color:#94a3b8;font-size:13px}
+    .pill{display:inline-flex;align-items:center;gap:8px;background:rgba(148,163,184,.12);border:1px solid rgba(148,163,184,.2);padding:10px 12px;border-radius:999px}
+    .logo{height:52px;width:52px;border-radius:12px;background:radial-gradient(circle at 30% 30%,#67e8f9,transparent 40%),radial-gradient(circle at 70% 70%,#34d399,transparent 35%),linear-gradient(135deg,#0ea5e9,#22c55e);border:1px solid rgba(148,163,184,.25)}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="card">
-      <div class="header">
-        <span class="badge"><span class="logo"></span> Diagnóstico rápido</span>
-        <div class="title">
-          <h1>IA para tu tienda de ciclismo</h1>
-        </div>
-        <p class="sub">Completa el formulario y te enviaremos un análisis con oportunidades de IA.</p>
+    <div class="hero">
+      <div>
+        <div class="pill"><div class="logo"></div><div><strong>Diagnóstico IA</strong> para tiendas de ciclismo</div></div>
+        <h1>Auditoría express de IA para tu tienda</h1>
+        <p class="lead">Completa el formulario y recibe por email un diagnóstico inicial gratuito con propuestas rápidas y priorizadas para aumentar ventas y eficiencia.</p>
       </div>
-      <form id="form" class="grid">
-        <div class="form">
-          <div class="section">
-            <h3>Contacto</h3>
-            <div class="fields">
-              <div class="row">
-                <div>
-                  <label>Nombre</label>
-                  <input name="nombre" required />
-                </div>
-                <div>
-                  <label>Email</label>
-                  <input name="email" type="email" required />
-                </div>
-              </div>
-              <div class="row">
-                <div>
-                  <label>Teléfono</label>
-                  <input name="telefono" />
-                </div>
-                <div>
-                  <label>Nombre de la tienda</label>
-                  <input name="tienda" />
-                </div>
-              </div>
-            </div>
-          </div>
+    </div>
 
-          <div class="section">
-            <h3>1) Inventario y proveedores</h3>
-            <div class="fields">
-              <div class="row">
-                <div>
-                  <label>¿Gestionas inventario digitalmente?</label>
-                  <select name="inventarioDigital" required>
-                    <option value="si">Sí</option>
-                    <option value="no">No</option>
-                  </select>
-                </div>
-                <div>
-                  <label>¿Integración con proveedores?</label>
-                  <select name="integracionProveedores" required>
-                    <option value="si">Sí</option>
-                    <option value="no">No</option>
-                  </select>
-                </div>
-              </div>
-              <label>Software actual (si aplica)</label>
-              <input name="softwareInventario" placeholder="Ej: TradeGecko, Odoo, Excel..." />
-            </div>
+    <form id="form" class="card" style="margin-top:28px">
+      <div class="hd">Formulario de contacto y diagnóstico</div>
+      <div class="bd">
+        <div class="grid">
+          <div>
+            <label>Nombre y apellidos</label>
+            <input name="nombre" required />
           </div>
-
-          <div class="section">
-            <h3>2) Ventas y atención al cliente</h3>
-            <div class="fields">
-              <div class="row">
-                <div>
-                  <label>Canales actuales</label>
-                  <input name="canales" placeholder="Tienda física, web, Instagram..." />
-                </div>
-                <div>
-                  <label>¿Usas chat o WhatsApp para ventas?</label>
-                  <select name="chatVentas" required>
-                    <option value="si">Sí</option>
-                    <option value="no">No</option>
-                  </select>
-                </div>
-              </div>
-              <label>Volumen mensual aprox. de consultas</label>
-              <input name="volumenConsultas" placeholder="Ej: 100-200" />
-            </div>
+          <div>
+            <label>Email</label>
+            <input name="email" type="email" required />
           </div>
-
-          <div class="section">
-            <h3>3) Marketing y contenidos</h3>
-            <div class="fields">
-              <div class="row">
-                <div>
-                  <label>¿Tienes calendario de contenidos?</label>
-                  <select name="calendarioContenidos" required>
-                    <option value="si">Sí</option>
-                    <option value="no">No</option>
-                  </select>
-                </div>
-                <div>
-                  <label>Principales redes</label>
-                  <input name="redes" placeholder="Instagram, TikTok, Strava..." />
-                </div>
-              </div>
-              <label>Herramientas actuales</label>
-              <input name="herramientasMarketing" placeholder="Ej: Meta Ads, Mailchimp, Canva..." />
-            </div>
+          <div>
+            <label>Teléfono</label>
+            <input name="telefono" />
           </div>
-
-          <div class="section">
-            <h3>4) Taller y posventa</h3>
-            <div class="fields">
-              <div class="row">
-                <div>
-                  <label>¿Gestionas citas del taller online?</label>
-                  <select name="citasTaller" required>
-                    <option value="si">Sí</option>
-                    <option value="no">No</option>
-                  </select>
-                </div>
-                <div>
-                  <label>¿Historial de reparaciones?</label>
-                  <select name="historialReparaciones" required>
-                    <option value="si">Sí</option>
-                    <option value="no">No</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="section">
-            <h3>5) Ecommerce</h3>
-            <div class="fields">
-              <div class="row">
-                <div>
-                  <label>¿Tienda online?</label>
-                  <select name="ecommerce" required>
-                    <option value="si">Sí</option>
-                    <option value="no">No</option>
-                  </select>
-                </div>
-                <div>
-                  <label>Plataforma</label>
-                  <input name="plataforma" placeholder="Shopify, WooCommerce, Prestashop..." />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="section">
-            <h3>6) Datos y reportes</h3>
-            <div class="fields">
-              <div class="row">
-                <div>
-                  <label>¿Tienes KPIs definidos?</label>
-                  <select name="kpis" required>
-                    <option value="si">Sí</option>
-                    <option value="no">No</option>
-                  </select>
-                </div>
-                <div>
-                  <label>¿Dashboard de negocio?</label>
-                  <select name="dashboard" required>
-                    <option value="si">Sí</option>
-                    <option value="no">No</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="section">
-            <h3>7) Objetivos y prioridades</h3>
-            <div class="fields">
-              <label>¿Qué te gustaría mejorar con IA?</label>
-              <textarea name="objetivos" placeholder="Describe tus objetivos (ventas, eficiencia, atención al cliente, etc.)"></textarea>
-            </div>
-          </div>
-
-          <div class="section">
-            <h3>Comentario adicional</h3>
-            <div class="fields">
-              <textarea name="comentario" placeholder="Cuéntanos algo más que debamos saber"></textarea>
-            </div>
-          </div>
-
-          <div class="cta" style="padding:14px 6px 6px">
-            <button class="btn" type="submit">Enviar diagnóstico</button>
-            <span id="status" class="status muted"></span>
+          <div>
+            <label>Nombre de la tienda</label>
+            <input name="tienda" />
           </div>
         </div>
 
-        <aside style="padding:6px 6px 16px">
-          <div class="section">
-            <h3>¿Qué recibirás?</h3>
-            <div class="fields">
-              <ul style="margin:0 0 0 18px; padding:0; color:var(--muted); font-size:14px; display:grid; gap:8px">
-                <li>Prioridades de IA según tu madurez digital</li>
-                <li>3-5 ideas rápidas de alto impacto</li>
-                <li>Recomendaciones de herramientas</li>
-                <li>Pasos siguientes sugeridos</li>
-              </ul>
-            </div>
+        <label>Mensaje principal</label>
+        <textarea name="mensaje" placeholder="Cuéntanos tus objetivos y situación actual"></textarea>
+
+        <hr style="border-color: rgba(148,163,184,.15);margin:18px 0">
+        <h3 style="margin:8px 0 6px">Cuestionario de diagnóstico</h3>
+        <div class="grid">
+          <div>
+            <label>Gestión de inventario</label>
+            <select name="inventario"><option>No se usa IA</option><option>Reglas básicas</option><option>Modelos predictivos</option><option>Avanzado en tiempo real</option></select>
           </div>
-          <div class="section">
-            <h3>Privacidad</h3>
-            <div class="fields">
-              <p class="muted">Usamos tus datos solo para elaborar el diagnóstico y contactarte. Puedes pedir su eliminación en cualquier momento.</p>
-            </div>
+          <div>
+            <label>Atención al cliente</label>
+            <select name="atencion"><option>No se usa IA</option><option>Chatbot básico</option><option>Asistente con handoff</option><option>24/7 omnicanal</option></select>
           </div>
-        </aside>
-      </form>
-    </div>
+          <div>
+            <label>Marketing y contenido</label>
+            <select name="marketing"><option>No se usa IA</option><option>Textos e imágenes</option><option>Automatizaciones</option><option>Personalización avanzada</option></select>
+          </div>
+          <div>
+            <label>Recomendaciones de producto</label>
+            <select name="recomendaciones"><option>No</option><option>Simples</option><option>Basadas en historial</option><option>Personalizadas en tiempo real</option></select>
+          </div>
+          <div>
+            <label>Operaciones internas</label>
+            <select name="operaciones"><option>Manual</option><option>Automatizado parcial</option><option>Automatizado con IA</option><option>Optimizado extremo</option></select>
+          </div>
+          <div>
+            <label>Integración de datos</label>
+            <select name="datos"><option>Desconectados</option><option>ETL básico</option><option>Lago de datos</option><option>Arquitectura unificada</option></select>
+          </div>
+        </div>
+
+        <label>Comentario adicional</label>
+        <textarea name="extra" placeholder="Lo que quieras añadir"></textarea>
+
+        <div class="actions">
+          <button type="submit">Enviar diagnóstico</button>
+          <span class="note" id="status"></span>
+        </div>
+      </div>
+    </form>
   </div>
+
   <script>
     const form = document.getElementById('form');
-    const statusEl = document.getElementById('status');
+    const status = document.getElementById('status');
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      statusEl.textContent = 'Enviando...'; statusEl.className = 'status muted';
+      status.textContent = 'Enviando...';
       const data = Object.fromEntries(new FormData(form).entries());
       try {
-        const res = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+        const res = await fetch('/api/contact', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
         const json = await res.json();
-        if (!res.ok) throw new Error(json.error || 'Error al enviar');
-        statusEl.textContent = 'Enviado'; statusEl.className = 'status ok';
-        form.reset();
+        status.textContent = json.ok ? '¡Enviado! Revisa tu email.' : (json.error || 'Error al enviar');
+        if (json.ok) form.reset();
       } catch (err) {
-        statusEl.textContent = 'Error: ' + err.message; statusEl.className = 'status err';
+        status.textContent = 'Error de red';
       }
     });
   </script>
